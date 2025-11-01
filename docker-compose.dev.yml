@@ -24,10 +24,10 @@ services:
       - ./database:/var/www/html/database
       - ./resources:/var/www/html/resources
       - ./routes:/var/www/html/routes
+      - ./config:/var/www/html/config
 
   mysql:
     image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       - MYSQL_ROOT_PASSWORD=sekret_root_password
       - MYSQL_DATABASE=monica

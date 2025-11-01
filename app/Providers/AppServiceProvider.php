@@ -29,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Register Authentik Socialite Provider
+        \Illuminate\Support\Facades\Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+            $event->extendSocialite('authentik', \SocialiteProviders\Authentik\Provider::class);
+        });
+
         if (App::runningInConsole()) {
             Command::macro('exec', function (string $message, string $commandline) {
                 // @codeCoverageIgnoreStart

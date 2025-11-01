@@ -6,7 +6,7 @@
 ### This file is based off of the `apache` variant in the above mentioned repo
 ###
 
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 # opencontainers annotations https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL org.opencontainers.image.authors="Alexis Saettler <alexis@saettler.org>" \
@@ -75,14 +75,23 @@ RUN set -ex; \
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
     apt-mark auto '.*' > /dev/null; \
     apt-mark manual $savedAptMark; \
+    \
+# find and mark runtime dependencies as manual to prevent their removal
+    runDeps="$( \
         ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
-        | awk '/=>/ { print $3 }' \
-        | sort -u \
-        | xargs -r dpkg-query -S \
-        | cut -d: -f1 \
-        | sort -u \
-        | xargs -rt apt-mark manual; \
-        \
+            | awk '/=>/ { print $3 }' \
+            | sort -u \
+            | xargs -r dpkg-query -S 2>/dev/null \
+            | cut -d: -f1 \
+            | sort -u \
+    )"; \
+    if [ -n "$runDeps" ]; then \
+        apt-mark manual $runDeps; \
+    fi; \
+    \
+# determine current library versions and mark them manual
+    apt list --installed | grep -E "lib(png|icu|zip|memcached|freetype|jpeg|webp|gmp|xml|magick)" | cut -d/ -f1 | xargs -r apt-mark manual 2>/dev/null || true; \
+    \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
     rm -rf /var/lib/apt/lists/*
 
@@ -150,8 +159,17 @@ RUN set -ex; \
 COPY --chown=www-data:www-data .env.example .env
 
 # Composer installation
-COPY scripts/docker/install-composer.sh /usr/local/sbin/
-RUN install-composer.sh
+RUN set -ex; \
+    EXPECTED_SIGNATURE=$(curl -sS https://composer.github.io/installer.sig); \
+    curl -sS -o composer-setup.php https://getcomposer.org/installer; \
+    ACTUAL_SIGNATURE=$(openssl sha384 composer-setup.php | cut -d' ' -f2); \
+    if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then \
+        >&2 echo 'ERROR: Invalid installer signature'; \
+        rm composer-setup.php; \
+        exit 1; \
+    fi; \
+    php composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer; \
+    rm composer-setup.php
 
 # Install composer dependencies
 RUN set -ex; \
@@ -164,7 +182,7 @@ RUN set -ex; \
 # Install node dependencies
 RUN set -ex; \
     \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -; \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -; \
     apt-get install -y nodejs; \
     npm install -g yarn; \
     yarn run inst; \
@@ -176,6 +194,12 @@ COPY scripts/docker/entrypoint.sh \
     scripts/docker/cron.sh \
     scripts/docker/queue.sh \
     /usr/local/bin/
+
+# Fix Windows line endings and make scripts executable
+RUN apt-get update && apt-get install -y dos2unix && \
+    dos2unix /usr/local/bin/entrypoint.sh /usr/local/bin/cron.sh /usr/local/bin/queue.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/cron.sh /usr/local/bin/queue.sh && \
+    apt-get purge -y dos2unix && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]

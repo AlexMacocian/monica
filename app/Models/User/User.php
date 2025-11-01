@@ -49,6 +49,8 @@ class User extends Authenticatable implements MustVerifyEmail, HasLocalePreferen
         'temperature_scale',
         'name_order',
         'google2fa_secret',
+        'oidc_sub',
+        'oidc_provider',
     ];
 
     /**

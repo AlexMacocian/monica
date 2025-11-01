@@ -45,9 +45,13 @@ return [
     'password_forget' => 'Forget your password?',
     'password_reset' => 'Reset your password',
     'use_recovery' => 'Or you can use a <a href=":url">recovery code</a>',
-    'signup_no_account' => 'Don’t have an account?',
+    'signup_no_account' => 'Don\'t have an account?',
     'signup' => 'Sign up',
     'create_account' => 'Create the first account by <a href=":url">signing up</a>',
+    
+    'or' => 'or',
+    'login_with_oidc' => 'Login with Single Sign-On',
+    
     'change_language_title' => 'Change language:',
     'change_language' => 'Change language to :lang',
 

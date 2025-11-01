@@ -18,6 +18,9 @@ class EventServiceProvider extends ServiceProvider
         \Illuminate\Auth\Events\PasswordReset::class => [
             \App\Listeners\LogoutUserDevices::class,
         ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            \SocialiteProviders\Authentik\AuthentikExtendSocialite::class.'@handle',
+        ],
     ];
 
     /**

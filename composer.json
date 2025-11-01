@@ -47,6 +47,8 @@
         "rinvex/countries": "^8.1",
         "sabre/dav": "^4.0",
         "sentry/sentry-laravel": "^2.0",
+        "socialiteproviders/authentik": "^5.2.0",
+        "socialiteproviders/manager": "^4.8.1",
         "spatie/macroable": "^2.0",
         "stevebauman/location": "^6.1",
         "symfony/http-client": "^6.0",

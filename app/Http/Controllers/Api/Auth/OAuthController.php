@@ -40,7 +40,7 @@ class OAuthController extends Controller
     {
         $this->encrypter = $encrypter;
 
-        if (config('app.debug')) {
+        if (config('app.debug') && class_exists('Barryvdh\Debugbar\Facades\Debugbar')) {
             Debugbar::disable();
         }
     }

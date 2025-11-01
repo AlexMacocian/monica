@@ -57,6 +57,20 @@
                 </label>
               </div>
 
+            </form>
+
+            @if(config('services.authentik.base_url'))
+            <div class="mt-4 mb-4 text-center">
+              <div class="divider">
+                <span class="divider-text">{{ trans('auth.or') }}</span>
+              </div>
+              <a href="{{ route('auth.oidc.redirect') }}" class="btn btn-outline-secondary btn-block mt-3">
+                <i class="fa fa-sign-in-alt"></i>&nbsp;{{ trans('auth.login_with_oidc') }}
+              </a>
+            </div>
+            @endif
+
+            <form style="display: none;">
               <div class="form-group links">
                 <ul>
                   <li>{{ trans('auth.password_forget') }}&nbsp;<a href="{{ route('password.request') }}">{{ trans('auth.password_reset') }}</a></li>

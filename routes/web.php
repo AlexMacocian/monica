@@ -20,6 +20,10 @@ Route::get('/', 'Auth\LoginController@showLoginOrRegister')->name('loginRedirect
 
 Auth::routes(['verify' => true]);
 
+// OIDC Authentication routes
+Route::get('/auth/authentik', 'Auth\OIDCController@redirectToProvider')->name('auth.oidc.redirect');
+Route::get('/auth/authentik/callback', 'Auth\OIDCController@handleProviderCallback')->name('auth.oidc.callback');
+
 // Redirect .well-known urls (https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers)
 Route::permanentRedirect('/.well-known/carddav', '/dav/');
 Route::permanentRedirect('/.well-known/caldav', '/dav/');
