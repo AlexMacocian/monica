@@ -130,6 +130,16 @@ class Account extends Model
     }
 
     /**
+     * Get the account link invitations associated with the account.
+     *
+     * @return HasMany
+     */
+    public function accountLinks()
+    {
+        return $this->hasMany(AccountLink::class);
+    }
+
+    /**
      * Get the debt records associated with the account.
      *
      * @return HasMany

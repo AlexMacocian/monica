@@ -14,12 +14,15 @@ use App\Models\Contact\Contact;
 use App\Jobs\AddContactFromVCard;
 use App\Models\Account\ImportJob;
 use App\Models\Account\Invitation;
+use App\Models\Account\AccountLink;
 use App\Services\User\EmailChange;
 use App\Exceptions\StripeException;
 use App\Http\Requests\ImportsRequest;
 use Illuminate\Http\RedirectResponse;
 use App\Notifications\InvitationMail;
+use App\Notifications\AccountLinkMail;
 use App\Http\Requests\SettingsRequest;
+use App\Http\Requests\AccountLinkRequest;
 use App\Services\Contact\Tag\UpdateTag;
 use LaravelWebauthn\Models\WebauthnKey;
 use App\Http\Requests\InvitationRequest;
@@ -319,6 +322,85 @@ class SettingsController extends Controller
 
         return redirect()->route('settings.users.index')
             ->with('success', trans('settings.users_invitation_deleted_confirmation_message'));
+    }
+
+    /**
+     * Show the form for linking an existing user account.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse
+     */
+    public function linkAccount()
+    {
+        if (AccountHelper::hasLimitations(auth()->user()->account)) {
+            return redirect()->route('settings.subscriptions.index');
+        }
+
+        return view('settings.users.link');
+    }
+
+    /**
+     * Send an account link invitation to an existing user.
+     *
+     * @param  AccountLinkRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function inviteExistingUser(AccountLinkRequest $request)
+    {
+        // Make sure the confirmation to invite has not been bypassed
+        if (! $request->input('confirmation')) {
+            return redirect()->back()->withErrors(trans('settings.users_error_please_confirm'))->withInput();
+        }
+
+        // Find the user by email
+        $user = User::where('email', $request->input('email'))->first();
+        
+        if (! $user) {
+            return redirect()->back()->withErrors(trans('settings.users_error_email_not_found'))->withInput();
+        }
+
+        // Check if user is trying to link their own account
+        if ($user->id === auth()->user()->id) {
+            return redirect()->back()->withErrors(trans('settings.users_error_cannot_link_own_account'))->withInput();
+        }
+
+        // Check if user is already part of this account
+        if ($user->account_id === auth()->user()->account_id) {
+            return redirect()->back()->withErrors(trans('settings.users_error_already_in_account'))->withInput();
+        }
+
+        // Has this user already been invited to link?
+        $existingLink = AccountLink::where('user_id', $user->id)
+            ->where('account_id', auth()->user()->account_id)
+            ->count();
+        if ($existingLink > 0) {
+            return redirect()->back()->withErrors(trans('settings.users_error_already_link_invited'))->withInput();
+        }
+
+        $accountLink = auth()->user()->account->accountLinks()->create([
+            'user_id' => $user->id,
+            'invited_by_user_id' => auth()->user()->id,
+            'account_id' => auth()->user()->account_id,
+            'invitation_key' => Str::random(100),
+        ]);
+
+        $accountLink->notify((new AccountLinkMail())->locale(auth()->user()->locale));
+
+        return redirect()->route('settings.users.index')
+            ->with('status', trans('settings.account_link_sent_success'));
+    }
+
+    /**
+     * Remove the specified account link invitation.
+     *
+     * @param  AccountLink  $accountLink
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroyAccountLink(AccountLink $accountLink)
+    {
+        $accountLink->delete();
+
+        return redirect()->route('settings.users.index')
+            ->with('success', trans('settings.account_link_deleted_confirmation_message'));
     }
 
     /**

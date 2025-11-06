@@ -32,6 +32,10 @@ Route::permanentRedirect('/.well-known/security.txt', '/security.txt');
 Route::get('/invitations/accept/{key}', 'Auth\InvitationController@show')->name('invitations.accept');
 Route::post('/invitations/accept/{key}', 'Auth\InvitationController@store')->name('invitations.send');
 
+Route::get('/account-links/accept/{key}', 'Auth\AccountLinkController@show')->name('account-links.accept');
+Route::post('/account-links/accept/{key}', 'Auth\AccountLinkController@store')->name('account-links.send');
+Route::delete('/account-links/decline/{key}', 'Auth\AccountLinkController@destroy')->name('account-links.decline');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/logout', 'Auth\LoginController@logout');
     Route::get('/auth/login-recovery', 'Auth\RecoveryLoginController@get')->name('recovery.login');
@@ -269,6 +273,11 @@ Route::middleware(['auth', 'verified', 'mfa'])->group(function () {
             Route::post('/settings/users', 'SettingsController@inviteUser')->name('store');
             Route::delete('/settings/users/{user}', 'SettingsController@deleteAdditionalUser')->name('destroy');
             Route::delete('/settings/users/invitations/{invitation}', 'SettingsController@destroyInvitation')->name('invitation.delete');
+            
+            // Account linking routes
+            Route::get('/settings/users/link', 'SettingsController@linkAccount')->name('link.create');
+            Route::post('/settings/users/link', 'SettingsController@inviteExistingUser')->name('link.store');
+            Route::delete('/settings/users/account-links/{accountLink}', 'SettingsController@destroyAccountLink')->name('link.delete');
         });
 
         Route::name('storage.')->group(function () {

@@ -19,12 +19,7 @@ services:
       - 8080:80
     env_file: .env.dev
     volumes:
-      - /var/www/html/storage
-      - ./app:/var/www/html/app
-      - ./database:/var/www/html/database
-      - ./resources:/var/www/html/resources
-      - ./routes:/var/www/html/routes
-      - ./config:/var/www/html/config
+      - ./storage:/var/www/html/storage
 
   mysql:
     image: mysql:8

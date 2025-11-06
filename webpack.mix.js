@@ -40,7 +40,7 @@ const purgeCssOptions = {
   }
 };
 
-mix.js('resources/js/app.js', 'public/js').vue()
+mix.js('resources/js/app.js', 'public/js').vue({ version: 2 })
   .sass('resources/sass/app-ltr.scss', 'public/css')
   .sass('resources/sass/app-rtl.scss', 'public/css')
 
@@ -50,6 +50,12 @@ mix.js('resources/js/app.js', 'public/js').vue()
 
   .alias({
     vue$: path.join(__dirname, 'node_modules/vue/dist/vue.esm.js'),
+  })
+
+  .webpackConfig({
+    resolve: {
+      symlinks: false,
+    }
   })
 
   // global commands
