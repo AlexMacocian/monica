@@ -70,24 +70,16 @@
             </div>
             @endif
 
-            <form style="display: none;">
-              <div class="form-group links">
-                <ul>
-                  <li>{{ trans('auth.password_forget') }}&nbsp;<a href="{{ route('password.request') }}">{{ trans('auth.password_reset') }}</a></li>
-                </ul>
-              </div>
-
-              <div class="form-group links">
-                <ul>
-                  @if(! config('monica.disable_signup'))
-                    <li>{{ trans('auth.signup_no_account') }}&nbsp;<a href="register">{{ trans('auth.signup') }}</a></li>
-                  @elseif(! \App\Helpers\InstanceHelper::hasAtLeastOneAccount())
-                    <li>{!! trans('auth.create_account', ['url' => 'register']) !!}</li>
-                  @endif
-                </ul>
-              </div>
-
-            </form>
+            <div class="form-group links">
+              <ul>
+                <li>{{ trans('auth.password_forget') }}&nbsp;<a href="{{ route('password.request') }}">{{ trans('auth.password_reset') }}</a></li>
+                @if(! config('monica.disable_signup'))
+                  <li>{{ trans('auth.signup_no_account') }}&nbsp;<a href="register">{{ trans('auth.signup') }}</a></li>
+                @elseif(! \App\Helpers\InstanceHelper::hasAtLeastOneAccount())
+                  <li>{!! trans('auth.create_account', ['url' => 'register']) !!}</li>
+                @endif
+              </ul>
+            </div>
           </div>
         </div>
       </div>

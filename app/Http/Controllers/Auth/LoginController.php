@@ -40,11 +40,6 @@ class LoginController extends Controller
 
     public function showLoginOrRegister()
     {
-        $first = ! InstanceHelper::hasAtLeastOneAccount();
-        if ($first) {
-            return redirect()->route('register');
-        }
-
         return $this->showLoginForm();
     }
 }
