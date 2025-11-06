@@ -36,7 +36,10 @@
           <div class="pa3 bb b--gray-monica">
             <h3 class="with-actions">
               {{ trans('settings.users_list_title') }}
-              <a href="{{ route('settings.users.create') }}" class="btn">{{ trans('settings.users_list_add_user') }}</a>
+              <div class="actions-list">
+                <a href="{{ route('settings.users.create') }}" class="btn">{{ trans('settings.users_list_add_user') }}</a>
+                <a href="{{ route('settings.users.link.create') }}" class="btn btn-outline-primary ml-2">{{ trans('settings.users_list_link_user') }}</a>
+              </div>
             </h3>
             <ul class="table">
             @foreach ($users as $user)

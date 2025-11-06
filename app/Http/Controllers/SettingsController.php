@@ -335,7 +335,17 @@ class SettingsController extends Controller
             return redirect()->route('settings.subscriptions.index');
         }
 
-        return view('settings.users.link');
+        // Get invitations sent by current user's account
+        $sentInvitations = auth()->user()->account->accountLinks()
+            ->with(['user', 'invitedBy'])
+            ->get();
+
+        // Get invitations received by current user
+        $receivedInvitations = AccountLink::where('user_id', auth()->user()->id)
+            ->with(['account', 'invitedBy'])
+            ->get();
+
+        return view('settings.users.link', compact('sentInvitations', 'receivedInvitations'));
     }
 
     /**

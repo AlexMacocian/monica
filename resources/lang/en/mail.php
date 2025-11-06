@@ -50,4 +50,11 @@ return [
     'export_description' => 'You requested a data export on :date. It is now ready to download.',
     'export_download' => 'Download export',
 
+    'account_link_title' => 'Monica – Account Link Invitation from :name',
+    'account_link_intro' => ':name (:email) has invited you to link your Monica account with theirs.',
+    'account_link_explanation' => 'By accepting this invitation, both accounts will share the same contact data and CRM information. You will be able to access and manage the same contacts, relationships, and data.',
+    'account_link_link' => 'To accept the account link invitation, click on the link below:',
+    'account_link_button' => 'Accept Account Link',
+    'account_link_expiration' => 'This link will expire in :count days.',
+
 ];

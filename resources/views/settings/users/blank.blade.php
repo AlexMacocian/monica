@@ -43,7 +43,11 @@
 
             <p>{{ trans('settings.users_blank_description') }}</p>
 
-            <p class="cta"><a href="{{ route('settings.users.create') }}" class="btn">{{ trans('settings.users_blank_cta') }}</a></p>
+            <p class="cta">
+              <a href="{{ route('settings.users.create') }}" class="btn">{{ trans('settings.users_blank_cta') }}</a>
+              <span class="ml-2">{{ trans('app.or') }}</span>
+              <a href="{{ route('settings.users.link.create') }}" class="btn btn-outline-primary ml-2">{{ trans('settings.users_list_link_user') }}</a>
+            </p>
 
             @if (config('monica.requires_subscription') && $accountHasLimitations)
               <p class="requires-subscription">{{ trans('settings.users_invitation_need_subscription') }}</p>

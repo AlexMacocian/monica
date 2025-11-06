@@ -126,6 +126,15 @@ RUN set -ex; \
     \
     echo 'memory_limit=512M' > $PHP_INI_DIR/conf.d/memory-limit.ini
 
+# Install Node.js early to leverage Docker layer caching
+RUN set -ex; \
+    \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -; \
+    apt-get install -y nodejs; \
+    npm install -g yarn; \
+    \
+    rm -rf /var/lib/apt/lists/*
+
 RUN set -ex; \
     \
     a2enmod headers rewrite remoteip; \
@@ -143,7 +152,6 @@ RUN set -ex; \
     sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" $APACHE_CONFDIR/apache2.conf $APACHE_CONFDIR/conf-available/*.conf
 
 WORKDIR /var/www/html
-
 
 # Copy the local (outside Docker) source into the working directory,
 # copy system files into their proper homes, and set file ownership
@@ -171,7 +179,7 @@ RUN set -ex; \
     php composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer; \
     rm composer-setup.php
 
-# Install composer dependencies
+# Install PHP dependencies
 RUN set -ex; \
     \
     mkdir -p storage/framework/views; \
@@ -179,16 +187,13 @@ RUN set -ex; \
     composer clear-cache; \
     rm -rf .composer
 
-# Install node dependencies
+# Install Node.js dependencies and build assets
 RUN set -ex; \
     \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -; \
-    apt-get install -y nodejs; \
-    npm install -g yarn; \
-    yarn run inst; \
-    yarn run production; \
-    \
-    rm -rf /var/lib/apt/lists/*
+    yarn install --production=false; \
+    yarn run production
+
+
 
 COPY scripts/docker/entrypoint.sh \
     scripts/docker/cron.sh \
